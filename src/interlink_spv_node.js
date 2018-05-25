@@ -3,6 +3,7 @@ const WalletPlugin = require('bcash/lib/wallet/plugin');
 const Interlink = require('./interlink');
 const Script = require('bcash/lib/script/script');
 const Output = require('bcash/lib/primitives/output');
+const config = require('./config');
 
 class InterlinkSPVNode extends SPVNode {
 	// interlink : Interlink
@@ -32,9 +33,24 @@ class InterlinkSPVNode extends SPVNode {
 
 	// Warning. The data will be correct only for the current block.
 	async sendInterlinkTX() {
-		const wallet = await node.walletdb.get(config.wallet);
+		const wallet = await this.walletdb.get(config.wallet);
 
+		const hashInterlink = this.interlink.getInterlinkHash(
+			Buffer.from(this.chain.tip.hash, 'hex'));
 
+		// 0.0002 BCC
+		const rate=20000;
+  	const script = Script.fromNulldata(hashInterlink);
+  	const output = Output.fromScript(script, 0);
+
+  	const options = {
+    	rate: rate,
+    	outputs: [output],
+  	};
+
+  	const tx = await wallet.createTX(options);
+
+  	return tx;
 	}
 
 }

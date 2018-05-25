@@ -6,9 +6,6 @@ const InterlinkSPVNode = require('./interlink_spv_node');
 
 const config = require('./config');
 
-// Set network to testnet.
-Network.set(config.network);
-
 const options = {
   network: config.network,
   httpPort: 3000,
@@ -16,7 +13,7 @@ const options = {
   memory: false,
   location: process.env.HOME + '/.bcash/testnet/spvchain',
   logConsole: true,
-  logLevel: 'info'
+  logLevel: 'none'
 };
 
 const node = new InterlinkSPVNode(options);
@@ -25,7 +22,7 @@ const node = new InterlinkSPVNode(options);
 (async () => {
   await node.initialize();
 
-  node.syncSPV();
+  //node.syncSPV();
 
   const wallet = await node.walletdb.get(config.wallet);
 
@@ -33,6 +30,7 @@ const node = new InterlinkSPVNode(options);
 
   node.pool.watchAddress(account.receiveAddress());
   node.pool.watchAddress(account.changeAddress());
+
 })().catch((err) => {
     console.error(err.stack);
     process.exit(1);
@@ -49,10 +47,8 @@ node.on('block', async(block) => {
   // console.log('New block' + block.hash());
   node.interlink.update(block.hash(), node.chain.height);
 
-  // Progress is not 100% reliable?
   if (node.chain.getProgress() === 1) {
-    // node.sendInterlinkTX();
-    console.log('Got the block. Progress is 1');
+    const tx = await node.sendInterlinkTX();
   }
 });
 

@@ -1,4 +1,4 @@
-const helpers = require('./helpers');
+const assert = require('assert');
 const config = require('./config');
 const merkle = require('bcrypto/lib/merkle');
 const hash256 = require('bcrypto/lib/hash256');
@@ -7,7 +7,7 @@ class Interlink {
 
 	constructor() {
 		// field for the genesis block?
-		this.prevLevels = new Map();
+		this.interlink = new Map();
 		this.hashInterlink = new Map();
 	}
 
@@ -15,19 +15,26 @@ class Interlink {
 	async initialize(chain) {
 		for (var i = 0; i <= chain.height; i++) {
 			let hash = await chain.getHash(i);
-			this.update(Buffer.from(hash, 'hex'), i);
+			this.update(hash, i);
 		}
 	}
 
 	update(blockHash, height) {
-		const level = helpers.trailingZeros(blockHash.toString('hex'));
+		if (typeof blockHash === 'string') {
+			blockHash = Buffer.from(blockHash, 'hex');
+		}
+
+		// 256-bits.
+		// assert(blockHash.length == 64);
+
+		const level = this.computeLevel(blockHash.toString('hex'));
 		const leaves = [];
 
 		// Genesis block does not have interlink.
 		if (height != 0) {
 			for (var i = level; i >= Math.max(level - config.level, 0); i--) {
-				// console.log('Hash pushed to merkle tree:' + this.prevLevels[i].hash);
-				leaves.push(this.prevLevels[i].hash);
+				// console.log('Hash pushed to merkle tree:' + this.interlink[i].hash);
+				leaves.push(this.interlink[i].hash);
 			}
 
 			const [merkleRoot, malleated] = merkle.createRoot(hash256, leaves);
@@ -40,15 +47,33 @@ class Interlink {
 
 		// Update for the next block.
 		for (var lvl = 0; lvl <= levelToUpdate; lvl++) {
-			this.prevLevels[lvl] = {hash: blockHash, height: height};
+			this.interlink[lvl] = {hash: blockHash, height: height};
 		}
 	}
 
 	getInterlinkHash(blockHash) {
-		assert(this.hashInterlink[blockHash] !== undefined);
+		// assert(this.hashInterlink[blockHash] !== undefined);
 		return this.hashInterlink[blockHash];
 	}
 
+		// Computes the level of hash (i.e number of trailing zeros) of a big-endian
+		// hexadecimal hash.
+	computeLevel(hexString) {
+		var zeros = 0;
+		for (var i = hexString.length - 1; i >= 0; i--) {
+			var ch = hexString.charAt(i);
+			if (hexString.charAt(i) == '0') {
+				zeros += 4;
+			} else {
+				var num = parseInt(ch, 16);
+				if ((num % 8) == 0) return zeros + 3;
+				if ((num % 4) == 0) return zeros + 2;
+				if ((num % 2) == 0) return zeros + 1;
+				return zeros;
+			}
+		}
+		return zeros;
+	}
 }
 
 module.exports = Interlink;
