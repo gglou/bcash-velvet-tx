@@ -1,0 +1,5 @@
+{
+	"network" : "testnet",
+	"wallet" : "primary",
+	"account" : "default"
+}
