@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcash": "file:../bcash"
+    "bcash": "file:../bcash",
+    "bcrypto": "^0.2.0"
   }
 }

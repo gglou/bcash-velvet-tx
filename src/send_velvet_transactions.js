@@ -1,7 +1,5 @@
 const SPVNode = require('bcash/lib/node/spvnode');
 const WalletDB = require('bcash/lib/wallet/walletdb');
-const Script = require('bcash/lib/script/script');
-const Output = require('bcash/lib/primitives/output');
 const NodeClient = require('bcash/lib/wallet/nodeclient');
 const Network = require('bcash/lib/protocol/network');
 const InterlinkSPVNode = require('./interlink_spv_node');
@@ -18,7 +16,7 @@ const options = {
   memory: false,
   location: process.env.HOME + '/.bcash/testnet/spvchain',
   logConsole: true,
-  logLevel: 'none'
+  logLevel: 'info'
 };
 
 const node = new InterlinkSPVNode(options);
@@ -28,36 +26,13 @@ const node = new InterlinkSPVNode(options);
   await node.initialize();
 
   node.syncSPV();
-  // spv.startSync();
 
   const wallet = await node.walletdb.get(config.wallet);
 
-  console.log(await node.chain.getHash(1000000));
-
-  // Add our address to the spv filter.
-  // const address = await wallet.getAddress('default').toString();
-  /* const balance = await wallet.getBalance('default');
-
-  console.log(balance);
-
-  // Watch these two address and update wallet.
   const account = await wallet.getAccount(config.account);
-
-  console.log(account.receiveAddress());
-  console.log(account.changeAddress());
 
   node.pool.watchAddress(account.receiveAddress());
   node.pool.watchAddress(account.changeAddress());
-
-  // const tx = await wallet.send(options);
-
-  // const tx = await wallet.createTX(options);
-
-  /*await wallet.sign(tx);
-
-  console.log(tx.toRaw().toString('hex'));*/ 
-
-  // console.log(tx);
 })().catch((err) => {
     console.error(err.stack);
     process.exit(1);
@@ -70,10 +45,19 @@ node.pool.on('tx', async(tx) => {
 
 node.on('block', async(block) => {
   // TODO: Update interlink.
-  node.interlink.update(block.hash().toString(), spv.chain.height);
-  console.log(block.hash().toString());
+  console.log('New block ' + node.chain.height);
+  // console.log('New block' + block.hash());
+  node.interlink.update(block.hash(), node.chain.height);
+
+  // Progress is not 100% reliable?
+  if (node.chain.getProgress() === 1) {
+    // node.sendInterlinkTX();
+    console.log('Got the block. Progress is 1');
+  }
 });
 
 node.on('connect', async(entry, block) => {
+  if (block.txs.length > 0) {
     await node.walletdb.addBlock(entry, block.txs);
+  }
 });
