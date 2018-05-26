@@ -48,7 +48,7 @@ class InterlinkSPVNode extends SPVNode {
 			outputs: [output],
 		};
 
-  	const tx = await wallet.createTX(options);
+  	const tx = await wallet.send(options);
 
   	return tx;
 	}
