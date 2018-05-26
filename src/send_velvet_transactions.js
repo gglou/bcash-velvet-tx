@@ -49,7 +49,7 @@ node.on('block', async(block) => {
 
   if (node.chain.getProgress() === 1) {
     const tx = await node.sendInterlinkTX();
-    console.log(tx.hash());
+    console.log(tx.hash().toString('hex'));
   }
 });
 

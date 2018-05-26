@@ -2,6 +2,7 @@ const assert = require('assert');
 const config = require('./config');
 const merkle = require('bcrypto/lib/merkle');
 const hash256 = require('bcrypto/lib/hash256');
+const util = require('bcash/lib/utils/util');
 
 class ChainInterlink {
 
@@ -56,20 +57,22 @@ class ChainInterlink {
 		return this.hashInterlink[blockHash];
 	}
 
-		// Computes the level of hash (i.e number of trailing zeros) of a big-endian
-		// hexadecimal hash.
+		// Computes the level of hash (i.e number of trailing zeros) of a 
+		// little-endian hexadecimal hash.
 	computeLevel(hexString) {
-		var zeros = 0;
-		for (var i = hexString.length - 1; i >= 0; i--) {
+		let littleEndianStr = util.revHex(hexString);
+		console.log(littleEndianStr);
+		let zeros = 0;
+
+		for (var i = 0; i < littleEndianStr.length; i++) {
 			var ch = hexString.charAt(i);
-			if (hexString.charAt(i) == '0') {
+			if (littleEndianStr.charAt(i) == '0') {
 				zeros += 4;
 			} else {
 				var num = parseInt(ch, 16);
-				if ((num % 8) == 0) return zeros + 3;
-				if ((num % 4) == 0) return zeros + 2;
-				if ((num % 2) == 0) return zeros + 1;
-				return zeros;
+				if (num > 7) return zeros;
+				if (num > 3) return zeros + 1;
+				return (num > 1 ? zeros + 2 : zeros + 3);
 			}
 		}
 		return zeros;
