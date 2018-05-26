@@ -13,7 +13,7 @@ const options = {
   memory: false,
   location: process.env.HOME + '/.bcash/testnet/spvchain',
   logConsole: true,
-  logLevel: 'none'
+  logLevel: 'info'
 };
 
 const node = new InterlinkSPVNode(options);
@@ -22,7 +22,7 @@ const node = new InterlinkSPVNode(options);
 (async () => {
   await node.initialize();
 
-  //node.syncSPV();
+  node.syncSPV();
 
   const wallet = await node.walletdb.get(config.wallet);
 
@@ -49,6 +49,7 @@ node.on('block', async(block) => {
 
   if (node.chain.getProgress() === 1) {
     const tx = await node.sendInterlinkTX();
+    console.log(tx.hash());
   }
 });
 

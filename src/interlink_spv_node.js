@@ -1,6 +1,6 @@
 const SPVNode = require('bcash/lib/node/spvnode');
 const WalletPlugin = require('bcash/lib/wallet/plugin');
-const Interlink = require('./interlink');
+const ChainInterlink = require('./chain_interlink');
 const Script = require('bcash/lib/script/script');
 const Output = require('bcash/lib/primitives/output');
 const config = require('./config');
@@ -11,7 +11,7 @@ class InterlinkSPVNode extends SPVNode {
 	constructor(options) {
 		super(options);
 		this.use(WalletPlugin);
-		this.interlink = new Interlink();
+		this.interlink = new ChainInterlink();
 		// For convenience.
 		this.walletdb = this.require('walletdb').wdb;
 	}
@@ -40,13 +40,13 @@ class InterlinkSPVNode extends SPVNode {
 
 		// 0.0002 BCC
 		const rate=20000;
-  	const script = Script.fromNulldata(hashInterlink);
-  	const output = Output.fromScript(script, 0);
+		const script = Script.fromNulldata(hashInterlink);
+		const output = Output.fromScript(script, 0);
 
-  	const options = {
-    	rate: rate,
-    	outputs: [output],
-  	};
+		const options = {
+			rate: rate,
+			outputs: [output],
+		};
 
   	const tx = await wallet.createTX(options);
 

@@ -1,14 +1,14 @@
-const Interlink = require('../src/interlink');
+const ChainInterlink = require('../src/chain_interlink');
 const sinon = require("sinon");
 const should = require("should");
 const assert = require("assert");
 const fixtures = require("./fixtures");
 
-describe("Interlink", () => {
+describe("ChainInterlink", () => {
 	var interlink = null;
 
 	beforeEach("get interlink", () => {
-		interlink = new Interlink();
+		interlink = new ChainInterlink();
   });
 
 	it("Computes correctly the levels of superblocks", () => {
@@ -18,7 +18,6 @@ describe("Interlink", () => {
 	});
 
 	describe("Interlink values", () => {
-		const interlink = new Interlink();
 		it("Produces undefined interlink for genesis", () => {
 			interlink.update(fixtures.blockHeaders.genesis, 0);
 
@@ -52,7 +51,4 @@ describe("Interlink", () => {
 			should(interlink.interlink[/* level= */ 33].height).equal(2);
 		});
 	});
-
-	// TODO: Test update.
-
 });

@@ -3,7 +3,7 @@ const config = require('./config');
 const merkle = require('bcrypto/lib/merkle');
 const hash256 = require('bcrypto/lib/hash256');
 
-class Interlink {
+class ChainInterlink {
 
 	constructor() {
 		// field for the genesis block?
@@ -76,4 +76,4 @@ class Interlink {
 	}
 }
 
-module.exports = Interlink;
+module.exports = ChainInterlink;

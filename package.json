@@ -2,8 +2,9 @@
   "name": "bcash_velvet_tx",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/send_velvet_transactions.js",
   "scripts": {
+    "send_velvet_tx": "node src/send_velvet_transactions.js",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "author": "",
