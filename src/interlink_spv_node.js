@@ -6,7 +6,6 @@ const Output = require('bcash/lib/primitives/output');
 const config = require('./config');
 
 class InterlinkSPVNode extends SPVNode {
-	// interlink : Interlink
 
 	constructor(options) {
 		super(options);
@@ -38,8 +37,7 @@ class InterlinkSPVNode extends SPVNode {
 		const hashInterlink = this.interlink.getInterlinkHash(
 			Buffer.from(this.chain.tip.hash, 'hex'));
 
-		// 0.0002 BCC
-		const rate=20000;
+		const rate=config.rate;
 		const script = Script.fromNulldata(hashInterlink);
 		const output = Output.fromScript(script, 0);
 

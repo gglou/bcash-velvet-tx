@@ -2,5 +2,6 @@
 	"network" : "testnet",
 	"wallet" : "primary",
 	"account" : "default",
-	"level" : 18
+	"level" : 18,
+	"rate" : 20000
 }
