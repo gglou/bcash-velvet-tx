@@ -25,9 +25,6 @@ class ChainInterlink {
 			blockHash = Buffer.from(blockHash, 'hex');
 		}
 
-		// 256-bits.
-		// assert(blockHash.length == 64);
-
 		const level = this.computeLevel(blockHash.toString('hex'));
 		const leaves = [];
 
@@ -37,10 +34,16 @@ class ChainInterlink {
 				// console.log('Hash pushed to merkle tree:' + this.interlink[i].hash);
 				leaves.push(this.interlink[i].hash);
 			}
+			/*Genesis is of infinite level and hence a pointer to it is included in 
+			every block at the first available index within the 
+			interlink data structure*/
+			leaves.push(this.genesisHash);
 
 			const [merkleRoot, malleated] = merkle.createRoot(hash256, leaves);
 
 			this.hashInterlink[blockHash] = merkleRoot;
+		} else {
+			this.genesisHash = blockHash;
 		}
 
 		// Genesis block level is infinite (i.e 256).
@@ -61,7 +64,6 @@ class ChainInterlink {
 		// little-endian hexadecimal hash.
 	computeLevel(hexString) {
 		let littleEndianStr = util.revHex(hexString);
-		console.log(littleEndianStr);
 		let zeros = 0;
 
 		for (var i = 0; i < littleEndianStr.length; i++) {
