@@ -18,6 +18,31 @@ class InterlinkSPVNode extends SPVNode {
 	async initialize() {
 		await this.open();
 		await this.connect();
+
+		// TODO: Declare them in the object? 
+		this.pool.on('tx', async(tx) => {
+      console.log('New transaction detected ' + tx);
+      await this.walletdb.addTX(tx);
+    });
+
+    this.on('block', async(block) => {
+      // TODO: Update interlink.
+      console.log('New block ' + this.chain.height);
+      // console.log(block.hash());
+      // console.log('New block' + block.hash());
+      this.interlink.update(block.hash(), this.chain.height);
+
+      if (this.chain.getProgress() === 1) {
+        const tx = await this.sendInterlinkTX();
+        console.log(tx.hash().toString('hex'));
+      }
+    });
+
+    this.on('connect', async(entry, block) => {
+      if (block.txs.length > 0) {
+        await this.walletdb.addBlock(entry, block.txs);
+      }
+    });
 	}
 
 	async teardown() {
@@ -46,11 +71,11 @@ class InterlinkSPVNode extends SPVNode {
 			outputs: [output],
 		};
 
-  	const tx = await wallet.send(options);
+  	// const tx = await wallet.send(options);
+  	const tx = await wallet.createTX(options);
 
   	return tx;
 	}
-
 }
 
 module.exports = InterlinkSPVNode;

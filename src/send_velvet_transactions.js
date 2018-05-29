@@ -35,26 +35,3 @@ const node = new InterlinkSPVNode(options);
     console.error(err.stack);
     process.exit(1);
 });
-
-node.pool.on('tx', async(tx) => {
-  console.log('New transaction detected ' + tx);
-  await node.walletdb.addTX(tx);
-});
-
-node.on('block', async(block) => {
-  // TODO: Update interlink.
-  console.log('New block ' + node.chain.height);
-  // console.log('New block' + block.hash());
-  node.interlink.update(block.hash(), node.chain.height);
-
-  if (node.chain.getProgress() === 1) {
-    const tx = await node.sendInterlinkTX();
-    console.log(tx.hash().toString('hex'));
-  }
-});
-
-node.on('connect', async(entry, block) => {
-  if (block.txs.length > 0) {
-    await node.walletdb.addBlock(entry, block.txs);
-  }
-});

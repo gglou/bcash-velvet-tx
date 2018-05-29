@@ -9,6 +9,7 @@ class ChainInterlink {
 	constructor() {
 		// field for the genesis block?
 		this.interlink = new Map();
+		this.chainInterlink = new Map();
 		this.hashInterlink = new Map();
 	}
 
@@ -20,7 +21,7 @@ class ChainInterlink {
 		}
 	}
 
-	update(blockHash, height) {
+	update(blockHash, height, merkleSize = config.level) {
 		if (typeof blockHash === 'string') {
 			blockHash = Buffer.from(blockHash, 'hex');
 		}
@@ -30,14 +31,16 @@ class ChainInterlink {
 
 		// Genesis block does not have interlink.
 		if (height != 0) {
-			for (var i = level; i >= Math.max(level - config.level, 0); i--) {
-				// console.log('Hash pushed to merkle tree:' + this.interlink[i].hash);
+			this.chainInterlink[blockHash] = new Map();
+			for (var i = Math.max(level - merkleSize, 0); i <= level; i++) {
 				leaves.push(this.interlink[i].hash);
+				this.chainInterlink[blockHash][i] = this.interlink[i].hash;
 			}
 			/*Genesis is of infinite level and hence a pointer to it is included in 
 			every block at the first available index within the 
 			interlink data structure*/
 			leaves.push(this.genesisHash);
+			this.chainInterlink[blockHash][256] = this.genesisHash;
 
 			const [merkleRoot, malleated] = merkle.createRoot(hash256, leaves);
 
