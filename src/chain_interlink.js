@@ -54,6 +54,7 @@ class ChainInterlink {
 
 		// Update for the next block.
 		for (var lvl = 0; lvl <= levelToUpdate; lvl++) {
+			// TODO: Is the height really needed? Good for debugging purposes sure.
 			this.interlink[lvl] = {hash: blockHash, height: height};
 		}
 	}

@@ -1,4 +1,5 @@
 const ChainInterlink = require('../src/chain_interlink');
+const TestHelpers = require('./helpers.js');
 const sinon = require("sinon");
 const should = require("should");
 const assert = require("assert");
@@ -71,6 +72,16 @@ describe("ChainInterlink", () => {
 
 		  should(interlink.chainInterlink[secBufHash][/* level */ 256].equals(
 			  genesisBufHash));
+		});
+	});
+
+	describe("Hash Interlink", () => {
+		
+		it("Is 32 bytes", () => {
+			interlink.update(fixtures.blockHeaders.genesis, 0);
+		  interlink.update(fixtures.blockHeaders.firstBlock, 1);
+
+		  should(interlink.hashInterlink[firstBufHash].length).equals(32);
 		});
 	});
 });
